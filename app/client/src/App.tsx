@@ -48,7 +48,7 @@ const AppLayout = () => {
           <Route path='/calendar' element={<Calendar/>}/>
           <Route path='/Dates' element={<AuthHOC><Dates/></AuthHOC>}/>
           <Route path='/details' element={<Details/>}/>
-          <Route path='/pomodoro' element={<AuthHOC><Pomodoro/></AuthHOC>}/>
+          <Route path='/pomodoro' element={<Pomodoro/>}/>
           <Route path='/profile' element={<AuthHOC><Profile/></AuthHOC>}/>
           <Route path='*' element={<Error/>}/>
         </Routes>

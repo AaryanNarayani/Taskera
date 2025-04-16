@@ -39,8 +39,8 @@ const AppLayout = () => {
         <SideBar isLanding={isLanding}/>
         <Routes>
           <Route path='/' element={<Landing/>}></Route>
-          <Route path='/home' element={<Home />}></Route>
-          <Route path='/tasks' element={<Tasks/>}></Route>
+          <Route path='/home' element={<AuthHOC><Home /></AuthHOC>}></Route>
+          <Route path='/tasks' element={<AuthHOC><Tasks/></AuthHOC>}></Route>
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path='/error' element={<Error/>}></Route>
           <Route path='/otpPage' element={<OTPpage/>}></Route>

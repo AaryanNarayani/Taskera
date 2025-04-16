@@ -19,6 +19,7 @@ import { Toaster } from 'sonner'
 import { ThemeProvider } from './components/theme-provider'
 import { Redirect } from './pages/Redirect'
 import Profile from './pages/Profile'
+import GroupsPage from './pages/Groups'
 
 
 const AppLayout = () => {
@@ -53,6 +54,9 @@ const AppLayout = () => {
           <Route path="/google/redirect" element={<Redirect />} />
           <Route path='/pomodoro' element={<AuthHOC><Pomodoro/></AuthHOC>}/>
           <Route path='/profile' element={<AuthHOC><Profile/></AuthHOC>}/>
+          <Route path='/groups' element={<GroupsPage/>}/>
+          <Route path='/groups/:id' element={<SpecificGroup/>}/>
+
           <Route path='*' element={<Error/>}/>
         </Routes>
       </div>

@@ -159,69 +159,43 @@ router.patch('/:taskId/status', authMiddleware, async (req: any, res: Response) 
  }
 });
 
-router.post('/availability', authMiddleware, async (req: any, res: Response) => {
-    try {
-      const prisma = getPrisma();
-      const { day, startTime, endTime } = req.body;
-   
-      const availability = await prisma.userAvailability.create({
-        data: {
-          userId: req.user!.uuid,
-          day,
-          startTime: new Date(startTime),
-          endTime: new Date(endTime)
-        }
-      });
-   
-      res.json(availability);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to create availability' });
-    }
-});
-
-router.get('/availability', authMiddleware, async (req: any, res: Response) => {
-    try {
-      const prisma = getPrisma();
-      const availability = await prisma.userAvailability.findMany({
-        where: { userId: req.user!.uuid }
-      });
-      res.json(availability);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch availability' });
-    }
-});
-
-router.put('/availability/:day', authMiddleware, async (req: any, res: any) => {
-    try {
-      const prisma = getPrisma();
-      const { startTime, endTime } = req.body;
-      const { day } = req.params;
-  
-      const existingAvailability = await prisma.userAvailability.findFirst({
-        where: {
-          userId: req.user!.uuid,
-          day: day
-        }
-      });
-  
-      if (!existingAvailability) {
-        return res.status(404).json({ error: 'Availability not found' });
+router.post('/availability', authMiddleware, async (req: any, res: any) => {
+  try {
+    const id = req.user!.uuid;
+    const { dateData } = req.body;
+    
+    // Transform the array of day data into the format expected by the schema
+    const availabilityData = dateData.reduce((acc: any, dayData: any) => {
+      const day = dayData.day.toLowerCase();
+      return {
+        ...acc,
+        [`${day}Hours`]: dayData.hrs,
+        [`${day}StartTime`]: dayData.startTime,
+        [`${day}EndTime`]: dayData.endTime
+      };
+    }, {});
+    
+    const prisma = getPrisma();
+    
+    const result = await prisma.userAvailability.upsert({
+      where: {
+        userId: id
+      },
+      update: {
+        ...availabilityData,
+        updatedAt: new Date()
+      },
+      create: {
+        userId: id,
+        ...availabilityData
       }
-  
-      const availability = await prisma.userAvailability.update({
-        where: {
-          id: existingAvailability.id
-        },
-        data: {
-          startTime: new Date(startTime),
-          endTime: new Date(endTime)
-        }
-      });
-  
-      res.json(availability);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to update availability' });
-    }
+    });
+    
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error saving availability:', error);
+    res.status(500).json({ error: 'Failed to save availability' });
+  }
 });
 
 router.get('/tasks/:id', authMiddleware, async (req: any, res: any) => {

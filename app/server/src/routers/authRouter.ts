@@ -28,6 +28,7 @@ const transporter = nodemailer.createTransport({
 const sendVerificationCode = async (email: string): Promise<string> => {
   const code = crypto.randomInt(100000, 999999).toString();
   const expiryTime = Date.now() + 10 * 60 * 1000; // 10 minutes
+  console.log("Email: "+ email + " Code: " + code);
 
   verificationCodes.set(email, {
     code,
@@ -114,7 +115,7 @@ router.get("/google/callback",
   }),
   (req: any, res: Response) => {
       const { token } = req.user;
-      res.redirect(`${process.env.CLIENT_URL}/details?token=${token}`);
+      res.redirect(`${process.env.CLIENT_URL}/google/redirect?token=${token}`);
   }
 );
 
@@ -173,9 +174,9 @@ router.post(
 
       const prisma = await getPrisma();
 
-      await prisma.user.upsert({
+      const user = await prisma.user.upsert({
         where: { email: email },
-        update: {},
+        update: { isOnboarded: true},
         create: {
           email: email,
         },
@@ -186,7 +187,7 @@ router.post(
       });
       verificationCodes.delete(email);
 
-      res.json({ token });
+      res.json({ token , user });
     } catch (error) {
       res.status(500).json({ error: "Verification failed" });
     }

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from "express";
+import { UserPayload } from '../override';
 
 export const authMiddleware = (
     req: Request,
@@ -19,7 +20,7 @@ export const authMiddleware = (
       const decoded = jwt.verify(
         token,
         process.env.JWT_SECRET as string
-      ) as String;
+      ) as UserPayload;
       req.user = decoded;
       next();
     } catch (error) {

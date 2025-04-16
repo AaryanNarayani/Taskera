@@ -279,15 +279,20 @@ router.put(
 
 router.get('/me',authMiddleware,async (req:any,res:any)=>{
 try{
-  const email = req.user?.email;
-  const prisma = await getPrisma();
+  const email = req.user!.email;
+  console.log(email);
+  const prisma = getPrisma();
 
-  const user = prisma.user.findFirst({
-    where:{email:email}
+  const user = await prisma.user.findUnique({
+    where:{email: email},
+    include: {
+      tasks: true,
+      courses: true,
+    }
   })
-
+  
   return res.status(200).json({
-    user
+    user: user,
   })
   }catch(e){
     console.log("Error occured in fetching user Details", e);

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CalendarClock, ChartNoAxesCombined, Home, Hourglass, LayoutList, UsersRound } from "lucide-react"
+import { useAppSelector } from "@/lib/hooks";
+import { CalendarClock, ChartNoAxesCombined, Home, Hourglass, LayoutList, LogOut, User, UsersRound } from "lucide-react"
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 const sideBarItems = [{
     name: 'home',
@@ -33,6 +34,9 @@ const sideBarItems = [{
 function SideBar({ isLanding } : any) {
 
     const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const navigate = useNavigate();
+    const user = useAppSelector((state) => state.user)
     const location = useLocation();
     
     const list = sideBarItems.map((item, i) => (
@@ -53,15 +57,32 @@ function SideBar({ isLanding } : any) {
             )}
         </Link>
     ))
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        
+        navigate('/')
+    }
     
     return (
         <>
             {!isLanding && (
-                <div className="sticky min-w-[60px] border-r border-[--border-line] h-full flex flex-col items-center py-10 justify-between">
+                <div className=" min-w-[60px] relative border-r border-[--border-line] h-full flex flex-col items-center py-10 justify-between">
                     <div className="flex flex-col gap-5">
                         {list}
                     </div>
-                    <div>A</div>
+                    <div style={{
+                        backgroundImage : `url(${user.avatar})`,
+                        backgroundSize: 'cover',
+                         backgroundRepeat: 'no-repeat'
+                    }}  className="w-10 h-10 object-contain rounded-full cursor-pointer" onClick={() => setIsProfileOpen(!isProfileOpen)}/>
+                    {isProfileOpen && <div className="absolute bottom-10 rounded-lg bg-[--background-2] text-[--secondary] left-20 w-fit flex flex-col  p-2" onBlur={() => setIsProfileOpen(false)}>
+                        <button onClick={() => {
+                            navigate('/profile')
+                            setIsProfileOpen(false)
+                        }} className="w-full hover:bg-[--secondary] hover:text-[--background-2] rounded-lg flex  items-center p-2 gap-2"><User/>Profile</button>
+                        <button className="w-full hover:bg-[--secondary] hover:text-[--background-2] rounded-lg flex items-center p-2 gap-2" onClick={handleLogout}><LogOut/>Logout</button>
+                    </div>}
                 </div>
             )}
         </>

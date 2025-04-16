@@ -10,6 +10,7 @@ function NavBar({isLanding} : any) {
   const handleAuth = () => {
     if(token){
       localStorage.removeItem('token');
+      navigate("/")
     }
     else
     {

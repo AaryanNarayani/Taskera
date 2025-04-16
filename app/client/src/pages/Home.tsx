@@ -6,6 +6,9 @@ import ViewTask from "@/components/DashboardBox/ViewTask";
 import Progress from "@/components/DashboardBox/Progress";
 import axios from "axios";
 import { BASE_URL } from "@/utils/vars";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { setUser } from "@/Redux/user/UserSlice";
+import Loader from "@/components/loader/Loader";
 
 const initialCourseTypes = ["EVS", "MCES", "FAFL", "RMIPR"];
 const priorities = [
@@ -20,7 +23,12 @@ function Home() {
   const [courseTypes, setCourseTypes] = useState(initialCourseTypes);
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
-  const [remidersSelected, setRemidersSelected] = useState(false);
+  const [remidersSelected, setRemidersSelected] = useState(false)
+  const [loading, setLoading] = useState(true);
+
+
+  const user = useAppSelector((state) => state.user)
+  const dispatch = useAppDispatch();
   const token = localStorage.getItem('token');
 
   const handleCourseSubmit = () => { 
@@ -31,23 +39,44 @@ function Home() {
     setTaskModalOpen(false);
   };
 
+   useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`${BASE_URL}/api/v1/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}` 
-        }
-      });
-      console.log(response.data);
-    } 
+      try {
+        const response = await axios.get(`${BASE_URL}/api/v1/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        dispatch(setUser(response.data.user));
+      } catch (e : any) {
+        console.error(e.message);
+      }
+    };
 
     fetchData();
   }, [token]);
 
+   if (loading) {
+    return (
+      <>
+        <Loader/>
+        
+      </>
+    );
+  }
   return (
+
     <div className="flex flex-col gap-3 px-3 sm:px-5 md:px-6 py-4 min-h-screen w-full overflow-x-hidden">
       <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl">
-        Welcome back <span className="text-[var(--secondary)]">Aaryan</span>,
+        Welcome back <span className="text-[var(--secondary)]">{user.username.toUpperCase()}</span>,
       </h1>
       
       {/* Dashboard boxes - now with 2x2 grid on mobile view */}

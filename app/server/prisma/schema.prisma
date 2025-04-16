@@ -117,12 +117,13 @@ model CalendarEvent {
 
 model Course {
   id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [uuid])
   name        String
   description String
   difficulty  Int
   
   tasks       Task[]
-  users       User[]
   groups      Group[]
 }
 

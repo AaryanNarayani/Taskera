@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "@reduxjs/toolkit": "^2.6.1",
     "@schedule-x/drag-and-drop": "^2.6.0",
     "@schedule-x/events-service": "^2.6.0",
     "@schedule-x/react": "^2.5.0",
@@ -24,6 +25,7 @@
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-redux": "^9.2.0",
     "react-router-config": "^5.1.1",
     "react-router-dom": "^6.28.0",
     "recharts": "^2.13.3",

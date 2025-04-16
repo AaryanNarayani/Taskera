@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef } from 'react'
 import EditHrsModal from '../components/modal/EditHrsModal';
 import { MoveRight } from 'lucide-react';
@@ -16,6 +17,7 @@ function Dates() {
 
     const [selectedDate, setSelectedDate] = useState({day : "", hrs : 0});
     const [toggleModal, setToggleModal] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const modalRef = useRef(null);
 
     const navigate = useNavigate();
@@ -53,7 +55,7 @@ function Dates() {
 
             <div className='h-fit w-[50vw] bg-[--background-2] rounded-md flex flex-col items-center p-[40px]'>
                 <p className='text-[40px] text-center pb-12'>
-                    Tell us the number of <span className='text-[--secondary] text-[45px] font-bold'> Hours</span> you spare to study
+                    Tell us the number of <span className='text-[--secondary] text-[45px] font-bold'> Hours</span> you spare to accomplish your goals
                 </p>
                 <div className='flex w-full justify-center gap-8 flex-wrap'>
                     {dateData.map((value, index) => (
@@ -68,9 +70,10 @@ function Dates() {
                             <div className='text-center text-[--secondary]'>{value.hrs}hr</div>
                         </div>
                     ))}
-                    <div className='bg-[var(--secondary)] h-[40px] w-[40px] rounded-[100%]  text-center mt-1'>
-                     <button onClick={handleSubmit}>
-                            <MoveRight className='mt-2 mx-auto text-black hover:rotate-[-45deg] transition-all hover:cursor-pointer delay-50' />
+                    <div className='bg-[var(--secondary)] h-fit  rounded-[100px] px-6 py-3  text-center mt-1 text-black ' onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+                     <button onClick={handleSubmit} className='w-fit flex gap-2 items-center'>
+                        Next
+                            <MoveRight className={`mx-auto ${isHovered ? 'rotate-[-45deg]' : ''}  transition-all hover:cursor-pointer delay-50`} />
                             </button>
                             </div>
                 </div>

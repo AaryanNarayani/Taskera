@@ -80,11 +80,12 @@ model Task {
   userId       String
   name         String
   type         String
-  priority     Int
+  priority     Int?
   estTime      Int      
   deadline     DateTime
   courseId     String?
   groupId      String?
+  isCompleted  Boolean   @default(false)
   timeStudied  Int       @default(0)
   status       TaskStatus @default(TODO)
   subtasks     Subtask[]
@@ -96,11 +97,20 @@ model Task {
 }
 
 model Subtask {
-  id          String   @id @default(uuid())
-  taskId      String
-  name        String
-  isCompleted Boolean  @default(false)
-  task        Task     @relation(fields: [taskId], references: [id])
+  id            String   @id @default(uuid())
+  taskId        String
+  name          String
+  isCompleted   Boolean  @default(false)
+  task          Task     @relation(fields: [taskId], references: [id])
+  superSubtasks superSubtask[] @relation("SubtaskHierarchy")
+}
+
+model superSubtask {
+  id            String  @id @default(uuid())
+  subtaskId     String
+  name          String
+  isCompleted   Boolean @default(false)
+  subtask       Subtask @relation("SubtaskHierarchy", fields: [subtaskId], references: [id])
 }
 
 model CalendarEvent {

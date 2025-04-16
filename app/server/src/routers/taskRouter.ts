@@ -190,11 +190,218 @@ router.post('/availability', authMiddleware, async (req: any, res: any) => {
         ...availabilityData
       }
     });
+
+    const user = await prisma.user.update({
+      where: {
+        uuid: id
+      },
+      data:{
+        isOnboarded: true
+      }
+    })
     
     res.status(200).json(result);
   } catch (error) {
     console.error('Error saving availability:', error);
     res.status(500).json({ error: 'Failed to save availability' });
+  }
+});
+
+router.post('/create',authMiddleware , async(req :any,res: any)=>{
+try{
+  const id = req.user!.uuid;
+  const {name , type, estTime, deadline, courseId, subtasks} = req.body;
+  const prisma = getPrisma();
+  const task = await prisma.task.create({
+    data:{
+      userId: id,
+      name: name,
+      type: type,
+      estTime: estTime,
+      deadline: new Date(deadline),
+      courseId: courseId,
+    }
+  })
+  const manySubtask = await prisma.subtask.createMany({
+    data: subtasks.map((subtask: any) => ({
+      name: subtask,
+      taskId: task.id
+    }))
+  })
+  console.log("Subtask Created ",manySubtask.count);
+  console.log("Subtask for Task" ,task.id);
+  console.log("Task Created ",task.id);
+  console.log("Task for User" ,task.userId);
+  return res.status(200).json({
+    message : "Task Created succesfully",
+    task,
+    subtasks: manySubtask
+  })
+}catch(e){
+  console.log("Error: ",e);
+  return res.status(500).json({
+    message: "Internal Server Error"
+  })
+}
+})
+
+router.post('/milestone', authMiddleware, async (req: any, res: any) => {
+  try {
+    const { subtasks , taskId } = req.body;
+    const prisma = getPrisma();
+
+    const milestone = await prisma.subtask.createMany({
+        data: subtasks.map((subtask: any) => ({
+          name: subtask,
+          taskId: taskId
+        }))
+    });
+    
+    res.status(200).json(milestone);
+  }
+  catch (error) {
+    console.error('Error creating milestone:', error);
+    res.status(500).json({ error: 'Failed to create milestone' });
+  }
+});
+
+router.post('/subtask', authMiddleware, async (req: any, res: any) => {
+  try {
+    const { subtasks, milestoneId } = req.body;
+    const prisma = getPrisma();
+
+    const subtask = await prisma.superSubtask.createMany({
+      data: subtasks.map((subtask: any) => ({
+        name: subtask,
+        subtaskId: milestoneId
+      }))
+    });
+
+    res.status(200).json(subtask);
+  }
+  catch (error) {
+    console.error('Error creating subtask:', error);
+    res.status(500).json({ error: 'Failed to create subtask' });
+  }
+});
+
+router.post('/update-bulk', authMiddleware, async (req: any, res: any) => {
+  try {
+    const prisma = getPrisma();
+    const { taskUpdates } = req.body;
+
+    // Process updates in parallel
+    const updatePromises = taskUpdates.map(async ({ taskId, isCompleted }: any) => {
+      // Step 1: Update Task
+      await prisma.task.update({
+        where: { id: taskId },
+        data: { isCompleted },
+      });
+
+      // Step 2: If isCompleted is true, update subtasks and supersubtasks
+      if (isCompleted) {
+        // Update all subtasks
+        const subtasks = await prisma.subtask.findMany({
+          where: { taskId },
+          select: { id: true }
+        });
+
+        const subtaskIds = subtasks.map((s) => s.id);
+
+        // Update all subtasks in one go
+        if (subtaskIds.length > 0) {
+          await prisma.subtask.updateMany({
+            where: { id: { in: subtaskIds } },
+            data: { isCompleted: true }
+          });
+
+          // Update all superSubtasks in one go
+          await prisma.superSubtask.updateMany({
+            where: { subtaskId: { in: subtaskIds } },
+            data: { isCompleted: true }
+          });
+        }
+      }
+    });
+
+    await Promise.all(updatePromises);
+
+    return res.status(200).json({ message: "Tasks (and dependencies) updated successfully" });
+
+  } catch (e) {
+    console.log("Error:", e);
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
+});
+
+// router.post('/superSubtask/update-bulk',authMiddleware,async(req: any,res:any)=>{
+//   try{
+//     const prisma = getPrisma();
+//     const {superSubtaskUpdates} = req.body;
+
+//     const updatePromises = superSubtaskUpdates.map(({ superSubtaskId, isCompleted }: any) =>
+//       prisma.superSubtask.update({
+//         where: { id: superSubtaskId },
+//         data: { isCompleted },
+//       })
+//     );
+
+//     await Promise.all(updatePromises);
+
+//     return res.status(200).json({ message: "Subtasks updated successfully" });
+//   }catch(e){
+//     console.log("Error:",e);
+//     return res.status(500).json({
+//       message : "Internal Server Error"
+//     })
+//   }
+// });
+
+router.post('/superSubtask/update-bulk', authMiddleware, async (req: any, res: any) => {
+  try {
+    const prisma = getPrisma();
+    const { superSubtaskUpdates } = req.body;
+
+    // Step 1: Perform superSubtask updates
+    const updateResults = await Promise.all(
+      superSubtaskUpdates.map(({ superSubtaskId, isCompleted }: any) =>
+        prisma.superSubtask.update({
+          where: { id: superSubtaskId },
+          data: { isCompleted },
+        })
+      )
+    );
+
+    // Step 2: Gather unique subtaskIds affected
+    const affectedSubtaskIds = [...new Set(updateResults.map(s => s.subtaskId))];
+
+    // Step 3: For each affected subtask, check if all its superSubtasks are completed
+    const subtaskUpdateChecks = affectedSubtaskIds.map(async (subtaskId) => {
+      const supers = await prisma.superSubtask.findMany({
+        where: { subtaskId },
+        select: { isCompleted: true }
+      });
+
+      const allCompleted = supers.every(s => s.isCompleted === true);
+
+      if (allCompleted) {
+        await prisma.subtask.update({
+          where: { id: subtaskId },
+          data: { isCompleted: true }
+        });
+      }
+    });
+
+    await Promise.all(subtaskUpdateChecks);
+
+    return res.status(200).json({ message: "SuperSubtasks updated successfully" });
+  } catch (e) {
+    console.log("Error:", e);
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
   }
 });
 
@@ -270,29 +477,7 @@ router.get('/tasks/:id', authMiddleware, async (req: any, res: any) => {
       res.status(500).json({ error: 'Failed to delete task' });
     }
    });
-   
-   router.patch('/tasks/:id/progress', authMiddleware, async (req: any, res: Response) => {
-    try {
-      const prisma = getPrisma();
-      const { timeStudied } = req.body;
-   
-      const updatedTask = await prisma.task.update({
-        where: {
-          id: req.params.id,
-          userId: req.user!.uuid
-        },
-        data: {
-          timeStudied: {
-            increment: timeStudied
-          }
-        }
-      });
-   
-      res.json(updatedTask);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to update time studied' });
-    }
-});
+
 
 
    

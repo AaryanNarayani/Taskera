@@ -59,7 +59,7 @@ passport.use(
                }
 
                const token = jwt.sign(
-                   { email: googleEmail }, 
+                   { id: user.uuid, email: googleEmail }, 
                    String(JWT_SECRET),
                    { expiresIn: "3h" }
                );

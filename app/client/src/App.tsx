@@ -17,6 +17,7 @@ import Pomodoro from './pages/Pomodoro'
 import AuthHOC from './hooks/AuthHoc'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from './components/theme-provider'
+import { Redirect } from './pages/Redirect'
 
 const AppLayout = () => {
   const [isLanding, setIsLanding] = useState(false)
@@ -47,6 +48,7 @@ const AppLayout = () => {
           <Route path='/calendar' element={<AuthHOC><Calendar/></AuthHOC>}/>
           <Route path='/Dates' element={<AuthHOC><Dates/></AuthHOC>}/>
           <Route path='/details' element={<Details/>}/>
+          <Route path="/google/redirect" element={<Redirect />} />
           <Route path='/pomodoro' element={<AuthHOC><Pomodoro/></AuthHOC>}/>
           <Route path='*' element={<Error/>}/>
         </Routes>

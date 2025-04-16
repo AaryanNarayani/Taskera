@@ -26,7 +26,7 @@ const AppLayout = () => {
   const location = useLocation()
 
   useEffect(() => {
-    if (location.pathname === '/' || location.pathname === '/details'|| location.pathname === '/signup' || location.pathname === '/otpPage') {
+    if (location.pathname === '/' || location.pathname === '/details'|| location.pathname === '/signup' || location.pathname === '/otpPage' || location.pathname === '/dates') {
       setIsLanding(true)
     } else {
       setIsLanding(false)

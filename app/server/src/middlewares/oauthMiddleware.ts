@@ -57,7 +57,6 @@ passport.use(
                        }
                    });
                }
-
                const token = jwt.sign(
                    { id: user.uuid, email: googleEmail }, 
                    String(JWT_SECRET),

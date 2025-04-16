@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Flag } from "lucide-react";
 import CreateCourse from "@/components/DashboardBox/CreateCourse";
@@ -17,29 +19,114 @@ const priorities = [
   { value: "Low", label: "Low", color: "text-green-500" },
 ];
 
+const difficultyOptions = [
+  { value: "Hard", label: "Hard", difficultyValue: 3 },
+  { value: "Moderate", label: "Moderate", difficultyValue: 2 },
+  { value: "Easy", label: "Easy", difficultyValue: 1 },
+];
+
 function Home() {
-  const [taskModalOpen, setTaskModalOpen] = useState<any>(false);
-  const [courseModalOpen, setCourseModalOpen] = useState<any>(false);
+  const [taskModalOpen, setTaskModalOpen] = useState<boolean>(false);
+  const [courseModalOpen, setCourseModalOpen] = useState<boolean>(false);
   const [courseTypes, setCourseTypes] = useState(initialCourseTypes);
+  const [courseData, setCourseData] = useState({
+    name: "",
+    description: "",
+    difficulty: 0
+  });
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
-  const [remidersSelected, setRemidersSelected] = useState(false)
+  const [remindersSelected, setRemindersSelected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskType, setTaskType] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [estimatedTime, setEstimatedTime] = useState("");
 
-  const user = useAppSelector((state) => state.user)
+  const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const token = localStorage.getItem('token');
 
-  const handleCourseSubmit = () => { 
-    setCourseModalOpen(false);
-  };
-  
-  const handleTaskSubmit = () => { 
-    setTaskModalOpen(false);
+  const handleCourseDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setCourseData({
+      ...courseData,
+      [name]: name === "difficulty" ? parseInt(value) : value
+    });
   };
 
-   useEffect(() => {
+  const handleCourseSubmit = async () => {
+    try {
+      setSubmitLoading(true);
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/general/courses`,
+        courseData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log("Course created:", response.data);
+      setCourseData({
+        name: "",
+        description: "",
+        difficulty: 0
+      });
+      setCourseModalOpen(false);
+    } catch (error: any) {
+      console.error("Error creating course:", error.message);
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+  
+  const handleTaskSubmit = async () => {
+    try {
+      setSubmitLoading(true);
+      const taskData = {
+        title: taskTitle,
+        type: taskType,
+        courseType: selectedCourse,
+        deadline: deadline,
+        priority: selectedPriority,
+        estimatedTime: parseFloat(estimatedTime),
+        reminderEnabled: remindersSelected
+      };
+      
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/general/tasks`,
+        taskData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log("Task created:", response.data);
+      setTaskTitle("");
+      setTaskType("");
+      setSelectedCourse("");
+      setDeadline("");
+      setSelectedPriority(null);
+      setEstimatedTime("");
+      setRemindersSelected(false);
+      setTaskModalOpen(false);
+    } catch (error: any) {
+      console.error("Error creating task:", error.message);
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -56,24 +143,19 @@ function Home() {
           }
         });
         dispatch(setUser(response.data.user));
-      } catch (e : any) {
+      } catch (e: any) {
         console.error(e.message);
       }
     };
 
     fetchData();
-  }, [token]);
+  }, [token, dispatch]);
 
-   if (loading) {
-    return (
-      <>
-        <Loader/>
-        
-      </>
-    );
+  if (loading) {
+    return <Loader />;
   }
-  return (
 
+  return (
     <div className="flex flex-col gap-3 px-3 sm:px-5 md:px-6 py-4 min-h-screen w-full overflow-x-hidden">
       <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl">
         Welcome back <span className="text-[var(--secondary)]">{user.username.toUpperCase()}</span>,
@@ -105,6 +187,7 @@ function Home() {
         </div>
       </div>
 
+      {/* Task Modal */}
       {taskModalOpen && (
         <div 
           onClick={() => setTaskModalOpen(false)} 
@@ -114,18 +197,22 @@ function Home() {
             className="relative bg-[var(--background-2)] w-full max-w-4xl rounded-md p-3 sm:p-5 z-20" 
             onClick={(e) => e.stopPropagation()}
           >
+            <h1 className="text-3xl mb-3 font-regular">Create Task</h1>
             <div className="flex flex-col sm:flex-row justify-between mb-4 gap-3">
               <input
                 type="text"
                 className="text-base sm:text-lg md:text-xl outline-none text-white w-full bg-[var(--background-2)] placeholder:text-gray-400 py-2"
                 placeholder="Enter your task title"
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
                 autoFocus
               />
               <button 
                 onClick={handleTaskSubmit} 
                 className="bg-[var(--secondary)] px-3 py-2 rounded-lg text-black font-bold sm:w-28 hover:bg-purple-400 flex-shrink-0"
+                disabled={submitLoading}
               >
-                Create
+                {submitLoading ? "Creating..." : "Create"}
               </button>
             </div>
 
@@ -134,6 +221,8 @@ function Home() {
                 name="taskType"
                 id="taskType"
                 className="bg-[var(--background-2)] border border-[var(--secondary)] py-2 rounded-md px-2 w-full text-white"
+                value={taskType}
+                onChange={(e) => setTaskType(e.target.value)}
               >
                 <option value="">Task Type</option>
                 <option value="Exam Preparation">Exam Preparation</option>
@@ -145,6 +234,8 @@ function Home() {
 
               <select
                 className="bg-[var(--background-2)] border border-[var(--secondary)] py-2 rounded-md px-2 w-full text-white"
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
               >
                 <option value="">Course Type</option>
                 {courseTypes.map((item) => (
@@ -158,15 +249,17 @@ function Home() {
                 type="date"
                 placeholder="Deadline"
                 className="bg-white text-black py-2 px-3 rounded-md border cursor-pointer hover:bg-gray-100 w-full"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
               />
 
               <div className={`${
-                remidersSelected ? 'bg-[var(--secondary)]' : 'bg-white'
+                remindersSelected ? 'bg-[var(--secondary)]' : 'bg-white'
               } w-full rounded-md flex justify-center items-center text-black py-2 px-2`}>
                 <input 
                   type="checkbox"
-                  checked={remidersSelected}
-                  onChange={() => setRemidersSelected(!remidersSelected)}
+                  checked={remindersSelected}
+                  onChange={() => setRemindersSelected(!remindersSelected)}
                   className="mr-2"
                 />
                 Set Reminders
@@ -205,13 +298,16 @@ function Home() {
               <input 
                 type="text" 
                 className="py-2 rounded-md w-full text-black px-2" 
-                placeholder="Est. Time(hrs)" 
+                placeholder="Est. Time(hrs)"
+                value={estimatedTime}
+                onChange={(e) => setEstimatedTime(e.target.value)} 
               />
             </div>
           </div>
         </div>
       )}
 
+      {/* Course Modal */}
       {courseModalOpen && (
         <div 
           onClick={() => setCourseModalOpen(false)} 
@@ -222,34 +318,47 @@ function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col mb-4">
+              <h1 className="text-3xl mb-3 font-regular">Create a Course</h1>
               <input
                 type="text"
-                className="text-lg sm:text-xl md:text-2xl outline-none text-[var(--secondary)] mb-3 w-full bg-[var(--background-2)] placeholder:text-gray-400 py-2"
+                name="name"
+                className="text-lg sm:text-xl md:text-1xl outline-none text-[var(--secondary)] mb-3 w-full bg-[var(--background-2)] placeholder:text-gray-400 py-2"
                 placeholder="Enter your Course Name"
+                value={courseData.name}
+                onChange={handleCourseDataChange}
                 autoFocus
               />
               <input
                 type="text"
+                name="description"
                 className="text-sm outline-none text-white w-full bg-[var(--background-2)] placeholder:text-gray-400 py-1"
                 placeholder="Enter course description"
+                value={courseData.description}
+                onChange={handleCourseDataChange}
               />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <select
+                name="difficulty"
                 className="bg-[var(--background-2)] border border-[var(--secondary)] py-2 rounded-md px-2 w-full text-white"
+                value={courseData.difficulty}
+                onChange={handleCourseDataChange}
               >
-                <option value="">Difficulty</option>
-                <option value="Hard">Hard</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Easy">Easy</option>
+                <option value={0}>Difficulty</option>
+                {difficultyOptions.map((option) => (
+                  <option key={option.value} value={option.difficultyValue}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
 
               <button 
                 onClick={handleCourseSubmit}
-                className="bg-[var(--secondary)] px-4 py-2 rounded-lg text-black font-bold w-full sm:w-auto sm:min-w-28 hover:bg-purple-400 mt-3 sm:mt-0"
+                disabled={submitLoading || !courseData.name}
+                className="bg-[var(--secondary)] px-4 py-2 rounded-lg text-black font-bold w-full sm:w-auto sm:min-w-28 hover:bg-[var(--ternary)] hover:text-white transition ease-in-out duration-300 mt-3 sm:mt-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create
+                {submitLoading ? "Creating..." : "Create"}
               </button>
             </div>
           </div>

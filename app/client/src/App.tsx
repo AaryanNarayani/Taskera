@@ -45,7 +45,7 @@ const AppLayout = () => {
           <Route path='/error' element={<Error/>}></Route>
           <Route path='/otpPage' element={<OTPpage/>}></Route>
           <Route path='/analytics' element={<AuthHOC><Analytics/></AuthHOC>}/>
-          <Route path='/calendar' element={<AuthHOC><Calendar/></AuthHOC>}/>
+          <Route path='/calendar' element={<Calendar/>}/>
           <Route path='/Dates' element={<AuthHOC><Dates/></AuthHOC>}/>
           <Route path='/details' element={<Details/>}/>
           <Route path='/pomodoro' element={<AuthHOC><Pomodoro/></AuthHOC>}/>

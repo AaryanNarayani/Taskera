@@ -36,8 +36,8 @@ const initialEvents: CalendarEvent[] = [
   {
     id: '3',
     title: 'Hackathon',
-    start: '2024-11-21 11:00',
-    end: '2024-11-21 12:00',
+    start: '2025-01-15 12:00',
+    end: '2025-01-15 12:00',
   },
 ]
 

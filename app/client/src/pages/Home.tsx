@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Flag } from "lucide-react";
 import CreateCourse from "@/components/DashboardBox/CreateCourse";
@@ -52,12 +50,30 @@ function Home() {
         Welcome back <span className="text-[var(--secondary)]">Aaryan</span>,
       </h1>
       
-      {/* Dashboard boxes - now with container width and left alignment */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 w-full lg:w-11/12 xl:w-6/12 2xl:w-9/12">
+      {/* Dashboard boxes - now with 2x2 grid on mobile view */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 w-full lg:w-11/12 xl:w-6/12 2xl:w-9/12">
         <CreateTask handleChange={setTaskModalOpen} />
         <CreateCourse handleChange={setCourseModalOpen} />
         <ViewTask />
         <Progress />
+      </div>
+
+      {/* Get started component - placed below the dashboard boxes */}
+      <div className="flex justify-center mt-8 w-full">
+        <div className="flex flex-col items-center px-4">
+          <img src="minions.png" alt="Minions" className="w-16 sm:w-20 md:w-24" />
+          <div className="text-center">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-tight">
+              Create a new task to get started🌈
+            </h1>
+            <button
+              className="bg-[var(--secondary)] text-black rounded-md px-3 py-2 mt-3 text-sm sm:text-base"
+              onClick={() => setTaskModalOpen(true)}
+            >
+              Create +
+            </button>
+          </div>
+        </div>
       </div>
 
       {taskModalOpen && (
@@ -210,23 +226,6 @@ function Home() {
           </div>
         </div>
       )}
-
-      <div className="flex justify-center mt-8 w-full">
-        <div className="flex flex-col items-center px-4">
-          <img src="minions.png" alt="Minions" className="w-16 sm:w-20 md:w-24" />
-          <div className="text-center">
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-tight">
-              Create a new task to get started🌈
-            </h1>
-            <button
-              className="bg-[var(--secondary)] text-black rounded-md px-3 py-2 mt-3 text-sm sm:text-base"
-              onClick={() => setTaskModalOpen(true)}
-            >
-              Create +
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

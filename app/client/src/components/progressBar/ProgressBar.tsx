@@ -36,7 +36,7 @@ function ProgressBar({ progress }: { progress: number }) {
       ></motion.div>
       {isHovered && (
         <motion.div 
-          className="absolute top-full mt-4 w-fit bg-black/70 text-white px-2 rounded"
+          className="absolute top-full mt-4 w-fit bg-black/70 text-white px-2 rounded text-xs md:text-sm"
           style={{
             x: getRelativeX(),
           }}

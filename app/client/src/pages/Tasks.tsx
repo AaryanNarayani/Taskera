@@ -20,9 +20,7 @@ interface Task {
   done: boolean;
 }
 
-
 function Tasks() {
-
     const [isActive, setIsActive] = useState<string>('All');
     const [tasks, setTasks] = useState<Task[]>([{
     name : 'Exam study',
@@ -105,7 +103,6 @@ function Tasks() {
         <button key={i} onClick={()=>{setIsActive(item)}} className={`${isActive === item ? 'bg-[--secondary] text-[--ternary]' : 'bg-[--background-2]  text-[--secondary]'} rounded px-3 py-1`}>{item}</button>
     ))
 
-
     const updateSubtask = (taskIndex: number, milestoneIndex: number, subtaskIndex: number, done: boolean) => {
         const newTasks = [...tasks];
         newTasks[taskIndex].milestone[milestoneIndex].subtasks[subtaskIndex].done = done;
@@ -135,15 +132,15 @@ function Tasks() {
     const doneLength = donetaskList.length;
 
   return (
-    <div className="w-full flex flex-col items-center py-10 gap-4">
-        <div className="flex w-2/3 items-center justify-between">
-            <div className="flex gap-4 ">
+    <div className="w-full flex flex-col items-center py-6 md:py-10 gap-2 md:gap-4 px-4 md:px-0">
+        <div className="flex w-full md:w-11/12 lg:w-5/6 xl:w-2/3 items-center justify-between">
+            <div className="flex gap-2 md:gap-4">
                 {list}
             </div>
             <button className="bg-[--secondary] text-[--ternary] rounded-full p-1" onClick={handleAddTask}><Plus/></button>
         </div>
-        <div className="w-2/3">
-            <div className="sticky top-0">
+        <div className="w-full md:w-11/12 lg:w-5/6 xl:w-2/3">
+            <div className="sticky top-0 z-10">
                 <ProgressBar progress={doneLength/length}/>
             </div>
             {taskList}

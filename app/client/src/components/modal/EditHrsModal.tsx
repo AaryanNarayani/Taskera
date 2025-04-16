@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X } from 'lucide-react';
-import React from 'react'
 import { useState } from 'react';
 
 function EditHrsModal({handleEdit, selectedDate, handleChange , setToggleModal}: any) {
@@ -16,6 +16,12 @@ function EditHrsModal({handleEdit, selectedDate, handleChange , setToggleModal}:
         handleEdit();
     }
 
+    const handleInputChange = (e : any) => {
+        if(e.target.value <= 14 && e.target.value >= 0){
+            setInput(e.target.value);
+        }
+    }
+
     return (
         <div className='h-fit w-[400px] bg-[--background-2] absolute rounded-md flex flex-col items-center p-10'>
             <div className='w-full flex justify-end' onClick={() => {setToggleModal(false)}}><X className='text-white'/></div>
@@ -26,7 +32,9 @@ function EditHrsModal({handleEdit, selectedDate, handleChange , setToggleModal}:
                 type="number"
                 value={input}
                 className='text-[--secondary] h-[40px] w-[40px] text-center rounded bg-[--ternary]'
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => handleInputChange(e)}
+                max={14}
+                min={0}
             />
             <p className='text-[12px] absolute left-11'>hrs</p>
             </div>

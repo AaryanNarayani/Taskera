@@ -1,11 +1,10 @@
-import React from 'react'
-import { ChartNoAxesCombined, FolderPlus, Plus, FilePlus2, Flag, MoveRight } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+
+import { FilePlus2 } from "lucide-react";
 
 const CreateCourse = ({handleChange}:any) => {
     return (
       <div
-        className="bg-[var(--background-2)] m-4 min-w-[120px] h-[109px] flex flex-col p-4 rounded-md cursor-pointer"
+        className="bg-[var(--background-2)] w-[140px] h-[109px] flex flex-col p-4 rounded-md cursor-pointer"
         onClick={()=>handleChange(true)} 
       >
         <div

@@ -1,8 +1,9 @@
-import { Mail } from "lucide-react";
+  import { Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 function Landing() {
+  const token = localStorage.getItem("token");
   return (
     <>
       <motion.div
@@ -21,18 +22,18 @@ function Landing() {
                   alt=""
                   className="h-[200px] w-[140px] object-cover"
                 />
-                <motion.h1
+                <motion.p
                   initial={{opacity : 0, x : 100}}
                   animate={{opacity : 1, x : 0}}
-                >Taskera</motion.h1>
+                >Taskera</motion.p>
               </h1>
               <p className="text-[20px] -translate-y-7 translate-x-4">
                 Intelligently scheduling your tasks with smart algorithmic
                 precision
               </p>
               <Link
-                to="/signup"
-                className="border border-[--secondary] text-[--secondary] rounded-md px-4 py-2"
+                to={token ? "/home" : "/signup"}
+                className="border border-[--secondary] text-[--secondary] rounded-md px-4 py-2 hover:bg-[var(--secondary)] hover:text-black"
               >
                 Get Started
               </Link>
@@ -72,11 +73,11 @@ function Landing() {
         </div>
         <div className="h-screen relative">
           <div className="h-[1300px] w-[1300px] bg-[#282d42] absolute rounded-full translate-y-[60%] -translate-x-[20%] flex justify-center items-center">
-            <p className="text-4xl w-2/3 translate-x-20 inline">
+            <h1 className="text-4xl w-2/3 translate-x-20 inline">
               Effortlessly Transform{" "}
-              <h1 className="text-[--secondary] text-5xl">Complexity </h1> into{" "}
-              <h1 className="text-[--secondary] text-5xl">Clarity !!</h1>
-            </p>
+              <p className="text-[--secondary] text-5xl">Complexity </p> into{" "}
+              <p className="text-[--secondary] text-5xl">Clarity !!</p>
+            </h1>
             <motion.img
               initial={{x:-100}}
               whileInView={{x:0}}

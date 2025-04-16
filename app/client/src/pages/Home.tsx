@@ -1,9 +1,13 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { Flag } from "lucide-react";
 import CreateCourse from "@/components/DashboardBox/CreateCourse";
 import CreateTask from "@/components/DashboardBox/CreateTask";
 import ViewTask from "@/components/DashboardBox/ViewTask";
 import Progress from "@/components/DashboardBox/Progress";
+import axios from "axios";
+import { BASE_URL } from "@/utils/vars";
 
 // interface HomeItem {
 //   icon: React.ReactNode;
@@ -25,7 +29,7 @@ function Home() {
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
   const [remidersSelected, setRemidersSelected] = useState(false)
-
+  const token = localStorage.getItem('token');
 
   const handleCourseSubmit=() => { 
       //aaryan's logic 
@@ -35,10 +39,25 @@ function Home() {
       //aaryan's logic 
       setTaskModalOpen(false)
    }
+
+   useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(`${BASE_URL}/api/v1/auth/me`,{
+        headers: {
+          Authorization: `Bearer ${token}` 
+        }
+
+      });
+      console.log(response.data)
+    } 
+
+    fetchData()
+   },[token])
+
   return (
-    <div className="flex flex-col px-5 py-4">
-      <h1 className="text-[34px] ">Welcome back Aaryan,</h1>
-      <div className="flex">
+    <div className="flex flex-col gap-3 px-5 py-4">
+      <h1 className="text-[34px] ">Welcome back <span className="text-[var(--secondary)]">Aaryan</span>,</h1>
+      <div className="flex gap-3">
         <CreateTask  handleChange={setTaskModalOpen}/>
         <CreateCourse  handleChange={setcourseModalOpen} />
         <ViewTask/>
@@ -128,7 +147,7 @@ function Home() {
                           key={priority.value}
                           className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-700 ${priority.color}`}
                           onClick={() => {
-                            setSelectedPriority(priority.label);
+                            setSelectedPriority(priority.label);  
                             setIsPriorityDropdownOpen(false);
                           }}
                         >

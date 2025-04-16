@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { BASE_URL } from "../utils/vars";
 import axios from "axios";
@@ -20,6 +21,7 @@ function SignUp() {
   };
 
   const handleSubmit = async () => {
+    if(formdata.email === '') return toast.error('Email is required');
     setIsLoading(true);
     try {
       const response = await axios.post(`${BASE_URL}/api/v1/auth/email`, {
@@ -44,9 +46,9 @@ function SignUp() {
 
   return (
     <div className="h-[calc(100vh-60px)] w-[100vw] bg-[var(--ternary)] flex items-center justify-center">
-      <div className="h-[70vh] w-[65vh] bg-[var(--background-2)] rounded-md flex flex-col justify-start items-center gap-4 p-3">
-        <h3 className="text-[var(--secondary)] text-[40px] pb-5 pt-10">
-          Welcome to Taskera
+      <div className=" w-[65vh] bg-[var(--background-2)] rounded-xl flex flex-col justify-start items-center gap-4 p-3 py-10">
+        <h3 className="text-[var(--secondary)] text-[40px] ">
+          Login  <span className="text-white"></span>
         </h3>
         <button
           className="h-[50px] w-[80%] bg-[var(--ternary)] text-white flex justify-center items-center rounded-[5px]"
@@ -75,20 +77,21 @@ function SignUp() {
           value={formdata.email}
           onChange={updateForm}
         />
+        <p className="text-  text-[10px] w-3/4 pt-2">
+          By continuing, you agree to Taskera's Consumer Terms and Usage Policy, and
+          acknowledge their Privacy Policy.
+        </p>
 
         <div className="h-[50px] w-[80%] bg-[var(--secondary)] text-black flex justify-center items-center rounded-[5px]">
           {isLoading ? <Spinner/> : <button
-          className=""
+          className=" hover:"
           onClick={handleSubmit}
         >
           Continue with email
         </button>}
         </div>
 
-        <p className="text-white text-[10px] w-3/4 pt-2">
-          By continuing, you agree to Taskera's Consumer Terms and Usage Policy, and
-          acknowledge their Privacy Policy.
-        </p>
+        
       </div>
     </div>
   );

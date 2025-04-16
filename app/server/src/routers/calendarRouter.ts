@@ -160,4 +160,5 @@ router.put('/courses/:id', authMiddleware, async (req: any, res: Response) => {
  }
 });
 
+
 export { router as calendarRouter };

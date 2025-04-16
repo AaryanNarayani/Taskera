@@ -17,6 +17,7 @@ import Pomodoro from './pages/Pomodoro'
 import AuthHOC from './hooks/AuthHoc'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from './components/theme-provider'
+import Profile from './pages/Profile'
 
 const AppLayout = () => {
   const [isLanding, setIsLanding] = useState(false)
@@ -38,16 +39,17 @@ const AppLayout = () => {
         <SideBar isLanding={isLanding}/>
         <Routes>
           <Route path='/' element={<Landing/>}></Route>
-          <Route path='/home' element={<AuthHOC><Home/></AuthHOC>}></Route>
+          <Route path='/home' element={<AuthHOC><Home /></AuthHOC>}></Route>
           <Route path='/tasks' element={<AuthHOC><Tasks/></AuthHOC>}></Route>
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path='/error' element={<Error/>}></Route>
           <Route path='/otpPage' element={<OTPpage/>}></Route>
           <Route path='/analytics' element={<AuthHOC><Analytics/></AuthHOC>}/>
-          <Route path='/calendar' element={<AuthHOC><Calendar/></AuthHOC>}/>
+          <Route path='/calendar' element={<Calendar/>}/>
           <Route path='/Dates' element={<AuthHOC><Dates/></AuthHOC>}/>
           <Route path='/details' element={<Details/>}/>
-          <Route path='/pomodoro' element={<AuthHOC><Pomodoro/></AuthHOC>}/>
+          <Route path='/pomodoro' element={<Pomodoro/>}/>
+          <Route path='/profile' element={<AuthHOC><Profile/></AuthHOC>}/>
           <Route path='*' element={<Error/>}/>
         </Routes>
       </div>

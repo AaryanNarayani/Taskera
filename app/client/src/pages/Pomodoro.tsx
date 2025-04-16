@@ -59,9 +59,9 @@ export default function Pomodoro({
 
   return (
     <>
-      <div className="flex flex-col items-cente justify-center w-full">
-        <div className="flex items-center justify-center relative ">
-          <h1 className="absolute text-8xl">
+      <div className="flex flex-col items-center justify-center w-full px-4">
+        <div className="flex items-center justify-center relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+          <h1 className="absolute text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-medium">
             {`${Math.floor((duration - Math.floor(elapsedTime)) / 60)
               .toString()
               .padStart(2, "0")}:${Math.floor(
@@ -71,10 +71,10 @@ export default function Pomodoro({
               .padStart(2, "0")}`}
           </h1>
           <svg
-            width="600"
-            height="600"
+            width="100%"
+            height="100%"
             viewBox="0 0 200 200"
-            className="select-none"
+            className="select-none w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
           >
             <circle
               cx="100"
@@ -93,7 +93,7 @@ export default function Pomodoro({
               stroke="currentColor"
               strokeWidth="7"
               fill="none"
-              className="text-[--background-2] rounded-full "
+              className="text-[--background-2] rounded-full"
               style={{ rotate: 90, transformOrigin: "center", rotateX: 180 }}
               initial={{
                 strokeDasharray: circumference,
@@ -102,23 +102,35 @@ export default function Pomodoro({
               animate={controls}
             />
           </svg>
-          <div className="w-fit absolute bottom-0 flex items-center gap-4">
-            <button
-              onClick={togglePlay}
-              className=""
-              aria-label={isPlaying ? "Pause timer" : "Start timer"}
-            >
-              {isPlaying ? <Pause /> : <Play />}
-            </button>
-            {elapsedTime !== 0 && (
-              <button onClick={handleReset} className="text-[--secondary]">
-                <RotateCcw size={50}/>
-              </button>
-            )}
-          </div>
         </div>
-        <div className="flex justify-center">
-            <button className="bg-[--secondary] w-fit text-[--ternary] mt-4 px-4 py-2 rounded flex gap-3">Add task<Plus/></button>
+        
+        {/* Controls moved outside the circle with more spacing */}
+        <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-10 mt-2 sm:mt-4 md:mt-2 translate-y-[-20%]">
+          <button
+            onClick={togglePlay}
+            className="scale-75 sm:scale-90 md:scale-100"
+            aria-label={isPlaying ? "Pause timer" : "Start timer"}
+          >
+            {isPlaying ? 
+              <div className="transform scale-75 sm:scale-90 md:scale-100">
+                <Pause /> 
+              </div> : 
+              <div className="transform scale-75 sm:scale-90 md:scale-100">
+                <Play />
+              </div>
+            }
+          </button>
+          {elapsedTime !== 0 && (
+            <button onClick={handleReset} className="text-[--secondary]">
+              <RotateCcw size={24} className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" />
+            </button>
+          )}
+        </div>
+        
+        <div className="flex justify-center mt-2 sm:mt-4">
+          <button className="bg-[--secondary] w-fit text-[--ternary] px-3 py-1 sm:px-4 sm:py-2 rounded flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+            Add task<Plus size={14} className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         </div>
       </div>
     </>

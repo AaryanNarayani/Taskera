@@ -20,6 +20,7 @@ import { ThemeProvider } from './components/theme-provider'
 import { Redirect } from './pages/Redirect'
 import Profile from './pages/Profile'
 import GroupsPage from './pages/Groups'
+import SpecificGroup from './pages/SpecificGroup'
 
 
 const AppLayout = () => {

@@ -46,7 +46,7 @@ function Home() {
   const [deadline, setDeadline] = useState("");
   const [estimatedTime, setEstimatedTime] = useState("");
 
-  const user = useAppSelector((state) => state.user);
+  const user = useAppSelector((state:any) => state.user);
   const dispatch = useAppDispatch();
   const token = localStorage.getItem('token');
 

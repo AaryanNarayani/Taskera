@@ -48,7 +48,7 @@ function SignUp() {
     <div className="h-[calc(100vh-60px)] w-[100vw] bg-[var(--ternary)] flex items-center justify-center">
       <div className=" w-[65vh] bg-[var(--background-2)] rounded-xl flex flex-col justify-start items-center gap-4 p-3 py-10">
         <h3 className="text-[var(--secondary)] text-[40px] ">
-          Login  <span className="text-white"></span>
+          Get Started  <span className="text-white"></span>
         </h3>
         <button
           className="h-[50px] w-[80%] bg-[var(--ternary)] text-white flex justify-center items-center rounded-[5px]"

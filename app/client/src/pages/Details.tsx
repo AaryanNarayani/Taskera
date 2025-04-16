@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MoveRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { BASE_URL } from '../utils/vars';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -9,16 +9,15 @@ import { toast } from 'sonner';
 const Details = () => {
     const [username,setUsername] = useState("");
     const navigate = useNavigate();
-    const location = useLocation();
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const token = params.get('token');
+    // useEffect(() => {
+    //     const params = new URLSearchParams(location.search);
+    //     const token = params.get('token');
 
-        if (token) {
-            localStorage.setItem('token', token);
-        }
-    }, [location]);
+    //     if (token) {
+    //         localStorage.setItem('token', token);
+    //     }
+    // }, [location]);
 
     const token = localStorage.getItem('token');
     function handleChange(e:any){

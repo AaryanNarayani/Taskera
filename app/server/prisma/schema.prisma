@@ -12,6 +12,7 @@ model User {
   username    String     @default("User")
   email       String     @unique
   avatar      String?
+  isOnboarded Boolean    @default(false)
   level       Int        @default(1)
   streak      Int        @default(0)
   
@@ -26,12 +27,46 @@ model User {
 model UserAvailability {
   id        String   @id @default(uuid())
   userId    String
-  day       String   // Monday, Tuesday etc.
-  startTime DateTime
-  endTime   DateTime
   user      User     @relation(fields: [userId], references: [uuid])
   
-  @@unique([userId, day])
+  // Monday availability
+  mondayHours     Float?
+  mondayStartTime String?  // Store as "HH:MM" format
+  mondayEndTime   String?  // Store as "HH:MM" format
+  
+  // Tuesday availability
+  tuesdayHours     Float?
+  tuesdayStartTime String?
+  tuesdayEndTime   String?
+  
+  // Wednesday availability
+  wednesdayHours     Float?
+  wednesdayStartTime String?
+  wednesdayEndTime   String?
+  
+  // Thursday availability
+  thursdayHours     Float?
+  thursdayStartTime String?
+  thursdayEndTime   String?
+  
+  // Friday availability
+  fridayHours     Float?
+  fridayStartTime String?
+  fridayEndTime   String?
+  
+  // Saturday availability
+  saturdayHours     Float?
+  saturdayStartTime String?
+  saturdayEndTime   String?
+  
+  // Sunday availability
+  sundayHours     Float?
+  sundayStartTime String?
+  sundayEndTime   String?
+  
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId])
 }
 
 enum TaskStatus {

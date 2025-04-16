@@ -25,7 +25,7 @@ passport.use(
            callback: (error: any, user?: any) => void
        ) {
            try {
-               const prisma = await getPrisma();
+               const prisma = getPrisma();
                const googleEmail = profile.emails?.[0].value;
                const googleAvatar = profile.photos?.[0]?.value;
 

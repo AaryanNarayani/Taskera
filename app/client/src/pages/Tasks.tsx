@@ -1,152 +1,163 @@
-import { useState } from "react";
-import TaskCard from "../components/task/TaskCard"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
+import TaskCard from "../components/task/TaskCard";
 import { Plus } from "lucide-react";
 import ProgressBar from "../components/progressBar/ProgressBar";
+import { BASE_URL } from "@/utils/vars";
+import axios from "axios";
 
 interface Subtask {
+  id: string;
+  taskId: string;
   name: string;
-  done: boolean;
-}
-
-interface Milestone {
-  name: string;
-  subtasks: Subtask[];
-  done: boolean;
+  isCompleted: boolean;
 }
 
 interface Task {
+  id: string;
+  userId: string;
   name: string;
-  milestone: Milestone[];
-  done: boolean;
+  type: string;
+  priority: string | null;
+  estTime: number;
+  deadline: string;
+  courseId: string | null;
+  groupId: string | null;
+  isCompleted: boolean;
+  timeStudied: number;
+  status: string;
+  subtasks: Subtask[];
+  events: any[];
+}
+
+interface TaskData {
+  today: Task[];
+  all: Task[];
 }
 
 function Tasks() {
-    const [isActive, setIsActive] = useState<string>('All');
-    const [tasks, setTasks] = useState<Task[]>([{
-    name : 'Exam study',
-    milestone:[{
-        name:'Get resources',
-        subtasks: [{
-            name:'gather resources',
-            done:false,
-        },{
-            name:'gather youtube study material',
-            done:false,
-        }],
-        done:false,
-    },{
-        name:'Buy Blue Book',
-        subtasks: [{
-            name:'go to clg',
-            done:false,
-        },{
-            name:'Get money',
-            done:false,
-        }],
-        done:false,
-    }],
-    done:false
-},{
-    name : 'EVS OBA completion',
-    milestone:[{
-        name:'Buy Pink Book',
-        subtasks: [{
-            name:'go to clg',
-            done:false,
-        },{
-            name:'go to stationary',
-            done:false,
-        },{
-            name:'buy a 12rs pink book',
-            done:false,
-        }],
-        done:false,
-    }],
-    done:false
-},{
-    name : 'Mathematics Linear Algebra',
-    milestone:[{
-        name:'Gather study resources',
-        subtasks: [{
-            name:'Ask friends about pdf',
-            done:false,
-        },{
-            name:'Sort important notes from RD Sharma book',
-            done:false,
-        },{
-            name:'Browse on web',
-            done:false,
-        }],
-        done:false,
-    },{
-        name:'Make short notes',
-        subtasks: [{
-            name:'Solve Important problems on sticky note',
-            done:false,
-        },{
-            name:'Mark Important Exercise numbers',
-            done:false,
-        },{
-            name:'Revise',
-            done:false,
-        }],
-        done:false,
-    }],
-    done:false
-},])
+  const [isActive, setIsActive] = useState<string>('All');
+  const [taskData, setTaskData] = useState<TaskData>({
+    today: [],
+    all: []
+  });
 
-    const handleAddTask = () => {
-        console.log('task added')
+  const handleAddTask = () => {
+    console.log('task added');
+    // Implement task addition logic here
+  }
+
+  const list = ['Today', 'All'].map((item: string, i: number) => (
+    <button 
+      key={i} 
+      onClick={() => {setIsActive(item)}} 
+      className={`${isActive === item ? 'bg-[--secondary] text-[--ternary]' : 'bg-[--background-2] text-[--secondary]'} rounded px-3 py-1`}
+    >
+      {item}
+    </button>
+  ));
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/v1/tasks/`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        setTaskData(response.data);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
     }
+    fetchTasks();
+  }, []);
 
-    const list = ['Today', 'All'].map((item : any,i : number) => (
-        <button key={i} onClick={()=>{setIsActive(item)}} className={`${isActive === item ? 'bg-[--secondary] text-[--ternary]' : 'bg-[--background-2]  text-[--secondary]'} rounded px-3 py-1`}>{item}</button>
-    ))
+  // Function to update a task's completion status
+  const updateTask = (taskId: string, isCompleted: boolean) => {
+    setTaskData(prevData => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      ['today', 'all'].forEach(category => {
+        const taskIndex = newData[category].findIndex((t: Task) => t.id === taskId);
+        if (taskIndex !== -1) {
+          newData[category][taskIndex].isCompleted = isCompleted;
+          // If task is marked complete, mark all subtasks complete
+          if (isCompleted) {
+            newData[category][taskIndex].subtasks.forEach((subtask: Subtask) => {
+              subtask.isCompleted = true;
+            });
+          }
+        }
+      });
+      return newData;
+    });
+  };
 
-    const updateSubtask = (taskIndex: number, milestoneIndex: number, subtaskIndex: number, done: boolean) => {
-        const newTasks = [...tasks];
-        newTasks[taskIndex].milestone[milestoneIndex].subtasks[subtaskIndex].done = done;
-        
-        const allSubtasksDone = newTasks[taskIndex].milestone[milestoneIndex].subtasks.every(subtask => subtask.done);
-        newTasks[taskIndex].milestone[milestoneIndex].done = allSubtasksDone;
-        
-        const allMilestonesDone = newTasks[taskIndex].milestone.every(milestone => milestone.done);
-        newTasks[taskIndex].done = allMilestonesDone;
+  // Function to update a subtask's completion status
+  const updateSubtask = (taskId: string, subtaskId: string, isCompleted: boolean) => {
+    setTaskData(prevData => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      
+      ['today', 'all'].forEach(category => {
+        const taskIndex = newData[category].findIndex((task: Task) => task.id === taskId);
+        if (taskIndex !== -1) {
+          const subtaskIndex = newData[category][taskIndex].subtasks.findIndex(
+            (subtask: Subtask) => subtask.id === subtaskId
+          );
+          
+          if (subtaskIndex !== -1) {
+            newData[category][taskIndex].subtasks[subtaskIndex].isCompleted = isCompleted;
+            
+            // Check if all subtasks are completed
+            const allSubtasksCompleted = newData[category][taskIndex].subtasks.every(
+              (subtask: Subtask) => subtask.isCompleted
+            );
+            
+            // Update task completion status
+            newData[category][taskIndex].isCompleted = allSubtasksCompleted;
+          }
+        }
+      });
+      
+      return newData;
+    });
+  };
 
-        setTasks(newTasks);
-    }
+  // Display tasks based on active tab
+  const displayTasks = isActive === 'Today' ? taskData.today : taskData.all;
+  
+  const taskList = displayTasks.map((task) => (
+    <div key={task.id}>
+      <TaskCard 
+        item={task} 
+        updateTask={updateTask}
+        updateSubtask={updateSubtask}
+      />
+    </div>
+  ));
 
-    const taskList = tasks.map((task, taskIndex) => (
-        <div key={taskIndex}>
-            <TaskCard 
-                item={task} 
-                setTasks={setTasks} 
-                taskIndex={taskIndex}
-                updateSubtask={updateSubtask}
-            />
-        </div>
-    ));
-
-    const length = tasks.length;
-    const donetaskList = tasks.filter((item : any) => (item.done))
-    const doneLength = donetaskList.length;
+  const totalTasks = displayTasks.length;
+  const completedTasks = displayTasks.filter(task => task.isCompleted).length;
+  const progress = totalTasks > 0 ? completedTasks / totalTasks : 0;
 
   return (
     <div className="w-full flex flex-col items-center py-6 md:py-10 gap-2 md:gap-4 px-4 md:px-0">
-        <div className="flex w-full md:w-11/12 lg:w-5/6 xl:w-2/3 items-center justify-between">
-            <div className="flex gap-2 md:gap-4">
-                {list}
-            </div>
-            <button className="bg-[--secondary] text-[--ternary] rounded-full p-1" onClick={handleAddTask}><Plus/></button>
+      <div className="flex w-full md:w-11/12 lg:w-5/6 xl:w-2/3 items-center justify-between">
+        <div className="flex gap-2 md:gap-4">
+          {list}
         </div>
-        <div className="w-full md:w-11/12 lg:w-5/6 xl:w-2/3">
-            <div className="sticky top-0 z-10">
-                <ProgressBar progress={doneLength/length}/>
-            </div>
-            {taskList}
+        <button className="bg-[--secondary] text-[--ternary] rounded-full p-1" onClick={handleAddTask}>
+          <Plus/>
+        </button>
+      </div>
+      <div className="w-full md:w-11/12 lg:w-5/6 xl:w-2/3">
+        <div className="sticky top-0 z-10">
+          <ProgressBar progress={progress}/>
         </div>
+        {taskList}
+      </div>
     </div>
   )
 }
 
-export default Tasks
+export default Tasks;

@@ -1,4 +1,5 @@
-import { ChartNoAxesCombined, FolderPlus, Plus, FilePlus2, Flag, MoveRight } from "lucide-react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {Plus } from "lucide-react";
 
 const CreateTask = ({handleChange}:any) => {
   return (

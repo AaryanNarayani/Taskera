@@ -38,6 +38,7 @@ router.post('/courses', authMiddleware, async (req: any, res: Response) => {
    
       res.status(200).json(courses);
     } catch (error) {
+      console.log(error)
       res.status(500).json({ error: 'Failed to fetch courses' });
     }
    });
